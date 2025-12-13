@@ -26,17 +26,17 @@ export default function Home() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            📝 AI TODO管理アプリ
+            【電話が来たら500円】 はよやれTODO
           </h1>
-          <p className="text-sm text-gray-600">
-            Powered by Google Gemini AI 🤖
+          <p className="text-2xl text-gray-600">
+            By 岡野
           </p>
         </div>
 
         {!user ? (
           <UserSetup onUserSet={setUser} />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-24">
             <ChatInterface user={user} onTodoAdded={handleTodoAdded} />
             <TodoList refreshTrigger={refreshTrigger} />
           </div>

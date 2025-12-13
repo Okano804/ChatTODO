@@ -17,6 +17,7 @@ export function ChatInterface({ user, onTodoAdded }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false); 
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -26,9 +27,13 @@ export function ChatInterface({ user, onTodoAdded }: ChatInterfaceProps) {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    addMessage('assistant', `こんにちは、${user.name}さん！✨\n\nGoogle Gemini AIがTODOの管理をお手伝いします。\n\n例: 「明日の15時までに報告書を提出」と入力してください。`);
-  }, [user.name]);
+   useEffect(() => {
+  // 初回のみ実行（useRefで管理）
+  if (!hasInitialized.current) {
+    hasInitialized.current = true;
+    addMessage('assistant', `お疲れ様です！${user.name}さん！\n\nミニ岡野がTODOの管理をお手伝いします🙆‍♀️\n\n例: 「明日の15時までに報告書を提出」と入力してください。`);
+  }
+}, []);
 
   const addMessage = (role: 'user' | 'assistant', content: string) => {
     const message: ChatMessage = {
@@ -104,7 +109,7 @@ export function ChatInterface({ user, onTodoAdded }: ChatInterfaceProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-blue-500" />
-          Gemini AIチャット
+            ミニ岡野とチャットしてTODOを追加
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -112,6 +117,7 @@ export function ChatInterface({ user, onTodoAdded }: ChatInterfaceProps) {
           <div className="h-64 overflow-y-auto space-y-2 p-4 bg-gray-50 rounded-lg">
             {messages.map((message) => (
               <div
+        
                 key={message.id}
                 className={`p-3 rounded-lg ${
                   message.role === 'user'
@@ -125,7 +131,7 @@ export function ChatInterface({ user, onTodoAdded }: ChatInterfaceProps) {
             {isLoading && (
               <div className="flex items-center gap-2 text-gray-500">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Gemini AIが処理中...</span>
+                <span>ミニ岡野が処理中...</span>
               </div>
             )}
             <div ref={messagesEndRef} />

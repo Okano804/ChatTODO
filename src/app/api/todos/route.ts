@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase
       .from('todos')
       .select('*')
-      .eq('is_completed', false)
-      .order('deadline', { ascending: true });
+      .order('is_completed', { ascending: true })  // 未完了を先に
+      .order('deadline', { ascending: true });  
 
     if (error) throw error;
 

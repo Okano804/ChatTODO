@@ -53,6 +53,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 日本時間の文字列をUTCに変換してデータベースに保存
+    let utcDeadline = deadline;
+    try {
+      // YYYY-MM-DD HH:MM:SS 形式をパース
+      const [datePart, timePart] = deadline.split(' ');
+      
+      // ISO形式に変換（Tでつなぐ）+ 日本時間のタイムゾーンオフセット
+      const jstIsoString = `${datePart}T${timePart}+09:00`;
+      
+      // これをUTCに変換
+      const date = new Date(jstIsoString);
+      utcDeadline = date.toISOString();
+      
+      console.log('JST deadline:', deadline);
+      console.log('JST ISO:', jstIsoString);
+      console.log('UTC deadline:', utcDeadline);
+    } catch (error) {
+      console.error('Failed to convert deadline to UTC:', error);
+    }
+
     // Supabaseに新しいTODOを挿入
     const { data, error } = await supabase
       .from('todos')
@@ -60,7 +80,7 @@ export async function POST(request: NextRequest) {
         creator_name,
         creator_email,
         task_content,
-        deadline
+        deadline: utcDeadline
       }])
       .select()
       .single();

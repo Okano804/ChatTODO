@@ -21,11 +21,17 @@ export async function extractTodoWithGemini(message: string): Promise<{
       weekday: 'long'
     });
 
-    const prompt = `現在の日本時間: ${currentDateTime}
+    const prompt = `現在の日本時間（JST, UTC+9）: ${currentDateTime}
 
-以下のメッセージからTODOのタスク内容と期限（日本時間）を抽出してください。
+以下のメッセージからTODOのタスク内容と期限を抽出してください。
 
 メッセージ: "${message}"
+
+重要な指示:
+1. 期限は必ず日本時間（JST, UTC+9）で計算してください
+2. "1分後"は現在時刻から1分後の日本時間です
+3. "明日"は日本時間の翌日です
+4. タイムゾーンは日本時間（JST）で統一してください
 
 必ず以下のJSON形式のみで返してください（他の文章や説明は不要）:
 {"task": "タスク内容", "deadline": "YYYY-MM-DD HH:MM:SS"}
@@ -34,8 +40,9 @@ export async function extractTodoWithGemini(message: string): Promise<{
 入力: "明日の15時までに報告書を提出"
 出力: {"task": "報告書を提出", "deadline": "2025-12-14 15:00:00"}
 
-入力: "来週の月曜日の午前中に会議資料を準備"
-出力: {"task": "会議資料を準備", "deadline": "2025-12-16 12:00:00"}
+入力: "1時間後にミーティング"
+現在時刻が 2025-12-13 23:30:00 の場合
+出力: {"task": "ミーティング", "deadline": "2025-12-14 00:30:00"}
 
 期限が不明確な場合は null を返してください。
 必ずJSON形式のみで返答してください。`;

@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { sendOverdueNotification } from '@/lib/notification';
 
 /**
  * GET /api/todos - TODO一覧を取得
- * 
- * 動作：
- * 1. Supabaseから未完了のTODOを取得
- * 2. 期限の早い順に並べ替え
- * 3. JSON形式で返す
  */
 export async function GET(request: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('todos')
       .select('*')
-      .order('is_completed', { ascending: true })  // 未完了を先に
+      .order('is_completed', { ascending: true })
       .order('deadline', { ascending: true });  
 
     if (error) throw error;
@@ -31,21 +27,12 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/todos - 新しいTODOを作成
- * 
- * リクエストボディ：
- * {
- *   creator_name: string,
- *   creator_email: string,
- *   task_content: string,
- *   deadline: string (ISO 8601形式)
- * }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { creator_name, creator_email, task_content, deadline } = body;
 
-    // バリデーション
     if (!creator_name || !creator_email || !task_content || !deadline) {
       return NextResponse.json(
         { error: 'Missing required fields: creator_name, creator_email, task_content, deadline' },
@@ -53,16 +40,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 日本時間の文字列をUTCに変換してデータベースに保存
     let utcDeadline = deadline;
     try {
-      // YYYY-MM-DD HH:MM:SS 形式をパース
       const [datePart, timePart] = deadline.split(' ');
-      
-      // ISO形式に変換（Tでつなぐ）+ 日本時間のタイムゾーンオフセット
       const jstIsoString = `${datePart}T${timePart}+09:00`;
-      
-      // これをUTCに変換
       const date = new Date(jstIsoString);
       utcDeadline = date.toISOString();
       
@@ -73,7 +54,6 @@ export async function POST(request: NextRequest) {
       console.error('Failed to convert deadline to UTC:', error);
     }
 
-    // Supabaseに新しいTODOを挿入
     const { data, error } = await supabase
       .from('todos')
       .insert([{
@@ -88,6 +68,19 @@ export async function POST(request: NextRequest) {
     if (error) throw error;
 
     console.log('TODO created:', data);
+
+    // 期限超過チェック
+    const now = new Date();
+    const deadlineDate = new Date(data.deadline);
+
+    if (deadlineDate < now && !data.is_completed) {
+      console.log('TODO is already overdue, sending immediate notification...');
+      
+      sendOverdueNotification(data.id).catch(err => {
+        console.error('Failed to send overdue notification:', err);
+      });
+    }
+
     return NextResponse.json({ todo: data }, { status: 201 });
     
   } catch (error: any) {

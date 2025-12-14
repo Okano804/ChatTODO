@@ -114,15 +114,15 @@ export function ChatInterface({ user, onTodoAdded }: ChatInterfaceProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="h-64 overflow-y-auto space-y-2 p-4 bg-gray-50 rounded-lg">
+          <div className="h-100 overflow-y-auto space-y-2 p-4 bg-gray-50 rounded-lg">
             {messages.map((message) => (
               <div
         
                 key={message.id}
                 className={`p-3 rounded-lg ${
                   message.role === 'user'
-                    ? 'bg-blue-500 text-white ml-auto max-w-[80%]'
-                    : 'bg-white border max-w-[80%]'
+                    ? 'bg-blue-500 text-white ml-auto max-w-[60%]'
+                    : 'bg-white border max-w-[60%]'
                 }`}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>

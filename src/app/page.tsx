@@ -25,7 +25,7 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2 mt-16">
             【電話が来たら500円】 はよやれTODO
           </h1>
           <p className="text-2xl text-gray-600">
@@ -36,7 +36,7 @@ export default function Home() {
         {!user ? (
           <UserSetup onUserSet={setUser} />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-24">
+          <div className="flex flex-col gap-6 mt-16">
             <ChatInterface user={user} onTodoAdded={handleTodoAdded} />
             <TodoList refreshTrigger={refreshTrigger} />
           </div>
